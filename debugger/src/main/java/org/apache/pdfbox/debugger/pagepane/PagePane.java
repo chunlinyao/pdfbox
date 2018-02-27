@@ -26,11 +26,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import java.awt.Component;
@@ -105,7 +101,8 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
         zoomMenu.changeZoomSelection(zoomMenu.getPageZoomScale());
         // render in a background thread: rendering is read-only, so this should be ok, despite
         // the fact that PDDocument is not officially thread safe
-        new RenderWorker(zoomMenu.getPageZoomScale(), 0, false, false, false, false).execute();
+        new RenderWorker(zoomMenu.getPageZoomScale(), RotationMenu.getRotationDegrees(), PDFDebugger.showTextStripper.isSelected(), PDFDebugger.showTextStripperBeads.isSelected(),
+                PDFDebugger.showFontBBox.isSelected(),  PDFDebugger.showGlyphBounds.isSelected(), PDFDebugger.showFontInfo.isSelected()).execute();
     }
 
     /**
@@ -127,14 +124,16 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
             actionEvent.getSource() == PDFDebugger.showTextStripper ||
             actionEvent.getSource() == PDFDebugger.showTextStripperBeads ||
             actionEvent.getSource() == PDFDebugger.showFontBBox ||
-            actionEvent.getSource() == PDFDebugger.showGlyphBounds)
+            actionEvent.getSource() == PDFDebugger.showGlyphBounds ||
+            actionEvent.getSource() == PDFDebugger.showFontInfo)
         {
             new RenderWorker(ZoomMenu.getZoomScale(),
                              RotationMenu.getRotationDegrees(),
                              PDFDebugger.showTextStripper.isSelected(),
                              PDFDebugger.showTextStripperBeads.isSelected(),
                              PDFDebugger.showFontBBox.isSelected(),
-                             PDFDebugger.showGlyphBounds.isSelected()
+                             PDFDebugger.showGlyphBounds.isSelected(),
+                             PDFDebugger.showFontInfo.isSelected()
                             ).execute();
             zoomMenu.setPageZoomScale(ZoomMenu.getZoomScale());
         }
@@ -162,6 +161,9 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
 
         PDFDebugger.showGlyphBounds.setEnabled(true);
         PDFDebugger.showGlyphBounds.addActionListener(this);
+
+        PDFDebugger.showFontInfo.setEnabled(true);
+        PDFDebugger.showFontInfo.addActionListener(this);
     }
 
     @Override
@@ -171,9 +173,19 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
         rotationMenu.setEnableMenu(false);
         
         PDFDebugger.showTextStripper.setEnabled(false);
+        PDFDebugger.showTextStripper.removeActionListener(this);
+
         PDFDebugger.showTextStripperBeads.setEnabled(false);
+        PDFDebugger.showTextStripperBeads.removeActionListener(this);
+
         PDFDebugger.showFontBBox.setEnabled(false);
+        PDFDebugger.showFontBBox.removeActionListener(this);
+
         PDFDebugger.showGlyphBounds.setEnabled(false);
+        PDFDebugger.showGlyphBounds.removeActionListener(this);
+
+        PDFDebugger.showFontInfo.setEnabled(false);
+        PDFDebugger.showFontInfo.removeActionListener(this);
     }
 
     @Override
@@ -262,10 +274,11 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
         private final boolean showTextStripperBeads;
         private final boolean showFontBBox;
         private final boolean showGlyphBounds;
+        private final boolean showFontInfo;
         
         private RenderWorker(float scale, int rotation, boolean showTextStripper,
                              boolean showTextStripperBeads, boolean showFontBBox,
-                             boolean showGlyphBounds)
+                             boolean showGlyphBounds, boolean showFontInfo)
         {
             this.scale = scale;
             this.rotation = rotation;
@@ -273,6 +286,7 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
             this.showTextStripperBeads = showTextStripperBeads;
             this.showFontBBox = showFontBBox;
             this.showGlyphBounds = showGlyphBounds;
+            this.showFontInfo = showFontInfo;
         }
 
         @Override
@@ -292,11 +306,18 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
             statuslabel.setText("Rendered in " + ms + " ms");
             
             // debug overlays
-            DebugTextOverlay debugText = new DebugTextOverlay(document, pageIndex, scale, 
+            final DebugTextOverlay debugText = new DebugTextOverlay(document, pageIndex, scale,
                                                               showTextStripper, showTextStripperBeads,
-                                                              showFontBBox);
+                                                              showFontBBox, showFontInfo);
             Graphics2D g = image.createGraphics();
             debugText.renderTo(g);
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    PDFDebugger.textContent.setLength(0);
+                    PDFDebugger.textContent.append(debugText.getTextContent());
+                }
+            });
             g.dispose();
             
             return ImageUtil.getRotatedImage(image, rotation);

@@ -22,6 +22,7 @@ import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
@@ -48,22 +49,7 @@ import java.util.StringTokenizer;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Sides;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
-import javax.swing.TransferHandler;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -168,10 +154,12 @@ public class PDFDebugger extends JFrame
     public static JCheckBoxMenuItem showTextStripperBeads;
     public static JCheckBoxMenuItem showFontBBox;
     public static JCheckBoxMenuItem showGlyphBounds;
+    public static JCheckBoxMenuItem showFontInfo;
     
     // configuration
     public static Properties configuration = new Properties();
-    
+
+    public static StringBuilder textContent = new StringBuilder();
     /**
      * Constructor.
      */
@@ -571,6 +559,18 @@ public class PDFDebugger extends JFrame
         copyMenuItem.setEnabled(false);
         editMenu.add(copyMenuItem);
 
+        JMenuItem copyTextMenuItem = new JMenuItem("Copy Text");
+        copyTextMenuItem.setEnabled(true);
+        editMenu.add(copyTextMenuItem);
+        copyTextMenuItem.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent evt)
+            {
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(PDFDebugger.textContent.toString()), null);
+            }
+        });
+
         JMenuItem pasteMenuItem = new JMenuItem("Paste");
         pasteMenuItem.setEnabled(false);
         editMenu.add(pasteMenuItem);
@@ -644,6 +644,10 @@ public class PDFDebugger extends JFrame
         showGlyphBounds = new JCheckBoxMenuItem("Show Glyph Bounds");
         showGlyphBounds.setEnabled(false);
         viewMenu.add(showGlyphBounds);
+
+        showFontInfo = new JCheckBoxMenuItem("Show Font Info");
+        showFontInfo.setEnabled(false);
+        viewMenu.add(showFontInfo);
         
         return viewMenu;
     }
