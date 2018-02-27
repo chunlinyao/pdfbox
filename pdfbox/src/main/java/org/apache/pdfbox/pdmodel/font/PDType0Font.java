@@ -77,8 +77,9 @@ public class PDType0Font extends PDFont implements PDVectorFont
         {
             throw new IOException("Missing descendant font dictionary");
         }
-        descendantFont = PDFontFactory.createDescendantFont((COSDictionary) descendantFontDictBase, this);
         readEncoding();
+        descendantFont = PDFontFactory.createDescendantFont((COSDictionary) descendantFontDictBase, this);
+        checkIsCjk();
         fetchCMapUCS2();
     }
 
@@ -92,9 +93,10 @@ public class PDType0Font extends PDFont implements PDVectorFont
         {
             ttf.enableVerticalSubstitutions();
         }
+        readEncoding();
         embedder = new PDCIDFontType2Embedder(document, dict, ttf, embedSubset, this, vertical);
         descendantFont = embedder.getCIDFont();
-        readEncoding();
+        checkIsCjk();
         fetchCMapUCS2();
         if (closeOnSubset)
         {
@@ -285,13 +287,16 @@ public class PDType0Font extends PDFont implements PDVectorFont
                 LOG.warn("Invalid Encoding CMap in font " + getName());
             }
         }
-        
+
+    }
+
+    private void checkIsCjk() {
         // check if the descendant font is CJK
         PDCIDSystemInfo ros = descendantFont.getCIDSystemInfo();
         if (ros != null)
         {
             isDescendantCJK = "Adobe".equals(ros.getRegistry()) &&
-                    ("GB1".equals(ros.getOrdering()) || 
+                    ("GB1".equals(ros.getOrdering()) ||
                      "CNS1".equals(ros.getOrdering()) ||
                      "Japan1".equals(ros.getOrdering()) ||
                      "Korea1".equals(ros.getOrdering()));

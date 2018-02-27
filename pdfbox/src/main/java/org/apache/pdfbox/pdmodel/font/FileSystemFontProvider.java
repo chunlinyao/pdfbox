@@ -113,11 +113,15 @@ final class FileSystemFontProvider extends FontProvider
          * {@inheritDoc}
          * <p>
          * The method returns null if there is there was an error opening the font.
-         * 
+         *
+         * @param vertical
          */
         @Override
-        public FontBoxFont getFont()
+        public FontBoxFont getFont(boolean vertical)
         {
+            if(vertical) {
+                return getFontBoxFont();
+            }
             FontBoxFont cached = parent.cache.getFont(this);
             if (cached != null)
             {
@@ -126,19 +130,25 @@ final class FileSystemFontProvider extends FontProvider
             else
             {
                 FontBoxFont font;
-                switch (format)
-                {
-                    case PFB: font = parent.getType1Font(postScriptName, file); break;
-                    case TTF: font = parent.getTrueTypeFont(postScriptName, file); break;
-                    case OTF: font = parent.getOTFFont(postScriptName, file); break;
-                    default: throw new RuntimeException("can't happen");
-                }
+                font = getFontBoxFont();
                 if (font != null)
                 {
                     parent.cache.addFont(this, font);
                 }
                 return font;
             }
+        }
+
+        private FontBoxFont getFontBoxFont() {
+            FontBoxFont font;
+            switch (format)
+            {
+                case PFB: font = parent.getType1Font(postScriptName, file); break;
+                case TTF: font = parent.getTrueTypeFont(postScriptName, file); break;
+                case OTF: font = parent.getOTFFont(postScriptName, file); break;
+                default: throw new RuntimeException("can't happen");
+            }
+            return font;
         }
 
         @Override
