@@ -258,6 +258,11 @@ public abstract class PDCIDFont implements COSObjectable, PDFontLike, PDVectorFo
         return width;
     }
 
+    private boolean hasWidthForCID(int cid)
+    {
+        return widths.get(cid) != null || dict.containsKey(COSName.DW);
+    }
+
     @Override
     public Vector getPositionVector(int code)
     {
@@ -298,7 +303,13 @@ public abstract class PDCIDFont implements COSObjectable, PDFontLike, PDVectorFo
         // font widths with the widths given in the font dictionary
         return getWidthForCID(codeToCID(code));
     }
-
+    
+    @Override
+    public boolean hasExplicitWidth(int code) throws IOException
+    {
+        return hasWidthForCID(codeToCID(code));
+    }
+    
     @Override
     public abstract float getWidthFromFont(int code) throws IOException;
 

@@ -439,6 +439,12 @@ public class PDType0Font extends PDFont implements PDVectorFont
     }
 
     @Override
+    public boolean hasExplicitWidth(int code) throws IOException
+    {
+        return descendantFont.hasExplicitWidth(code);
+    }
+
+    @Override
     protected float getStandard14Width(int code)
     {
         throw new UnsupportedOperationException("not suppported");

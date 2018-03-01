@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.fontbox.FontBoxFont;
 import org.apache.fontbox.ttf.OpenTypeFont;
 import org.apache.fontbox.ttf.TTFParser;
@@ -42,7 +44,9 @@ import org.apache.fontbox.type1.Type1Font;
  */
 final class FontMapperImpl implements FontMapper
 {
+    private static final Log log = LogFactory.getLog(FontMapperImpl.class);
     private static final FontCache fontCache = new FontCache(); // todo: static cache isn't ideal
+    
     private FontProvider fontProvider;
     private Map<String, FontInfo> fontInfoByName;
     private final TrueTypeFont lastResortFont;
