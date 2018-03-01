@@ -55,7 +55,6 @@ public abstract class PDCIDFont implements COSObjectable, PDFontLike, PDVectorFo
 
     protected final COSDictionary dict;
     private PDFontDescriptor fontDescriptor;
-    private boolean noWidthEntries = false;
 
     /**
      * Constructor.
@@ -107,8 +106,6 @@ public abstract class PDCIDFont implements COSObjectable, PDFontLike, PDVectorFo
                     }
                 }
             }
-        } else {
-            this.noWidthEntries = true;
         }
     }
 
@@ -245,29 +242,19 @@ public abstract class PDCIDFont implements COSObjectable, PDFontLike, PDVectorFo
      * Returns the default position vector (v).
      *
      * @param cid CID
-     * @param code code
      */
-    private Vector getDefaultPositionVector(int cid, int code)
+    private Vector getDefaultPositionVector(int cid)
     {
-        return new Vector(getWidthForCID(cid, code) / 2, dw2[0]);
+        return new Vector(getWidthForCID(cid) / 2, dw2[0]);
     }
 
-    private float getWidthForCID(int cid, int code)
+    private float getWidthForCID(int cid)
     {
         Float width = widths.get(cid);
-        if (width == null && this.noWidthEntries == true)
+        if (width == null)
         {
-            try {
-                width = getWidthFromFont(code);
-            } catch (IOException e) {
-                // NOTHING TO DO
-            }
-
-        }
-        if (width == null) {
             width = getDefaultWidth();
         }
-        widths.put(cid, width);
         return width;
     }
 
@@ -278,7 +265,7 @@ public abstract class PDCIDFont implements COSObjectable, PDFontLike, PDVectorFo
         Vector v = positionVectors.get(cid);
         if (v == null)
         {
-            v = getDefaultPositionVector(cid, code);
+            v = getDefaultPositionVector(cid);
         }
         return v;
     }
@@ -309,7 +296,7 @@ public abstract class PDCIDFont implements COSObjectable, PDFontLike, PDVectorFo
         // these widths are supposed to be consistent with the actual widths given in the CIDFont
         // program, but PDFBOX-563 shows that when they are not, Acrobat overrides the embedded
         // font widths with the widths given in the font dictionary
-        return getWidthForCID(codeToCID(code), code);
+        return getWidthForCID(codeToCID(code));
     }
 
     @Override
