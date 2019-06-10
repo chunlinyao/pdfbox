@@ -104,7 +104,14 @@ final class FontMapperImpl implements FontMapper
         substitutes.put("IPAゴシック", Arrays.asList("IPAGothic"));
         substitutes.put("IPAP明朝", Arrays.asList("IPAPMincho"));
         substitutes.put("IPAPゴシック", Arrays.asList("IPAPGothic"));
-
+        substitutes.put("@MS-Mincho", Arrays.asList("MSMincho"));
+        substitutes.put("@MS-Gothic", Arrays.asList("MSGothic"));
+        substitutes.put("@MS-PMincho", Arrays.asList("MSPMincho"));
+        substitutes.put("@MS-PGothic", Arrays.asList("MSPGothic"));
+        substitutes.put("@IPAMincho", Arrays.asList("IPAMincho"));
+        substitutes.put("@IPAGothic", Arrays.asList("IPAGothic"));
+        substitutes.put("@IPAPMincho", Arrays.asList("IPAPMincho"));
+        substitutes.put("@IPAPGothic", Arrays.asList("IPAPGothic"));
 
         // Acrobat also uses alternative names for Standard 14 fonts, which we map to those above
         // these include names such as "Arial" and "TimesNewRoman"
@@ -434,14 +441,14 @@ final class FontMapperImpl implements FontMapper
         FontInfo info = getFont(format, postScriptName);
         if (info != null)
         {
-            return info.getFont(false);
+            return info.getFont(vertical);
         }
 
         // remove hyphens (e.g. Arial-Black -> ArialBlack)
         info = getFont(format, postScriptName.replaceAll("-", ""));
         if (info != null)
         {
-            return info.getFont(false);
+            return info.getFont(vertical);
         }
 
         // then try named substitutes
@@ -450,7 +457,7 @@ final class FontMapperImpl implements FontMapper
             info = getFont(format, substituteName);
             if (info != null)
             {
-                return info.getFont(false);
+                return info.getFont(vertical);
             }
         }
 
@@ -458,14 +465,14 @@ final class FontMapperImpl implements FontMapper
         info = getFont(format, postScriptName.replaceAll(",", "-"));
         if (info != null)
         {
-            return info.getFont(false);
+            return info.getFont(vertical);
         }
 
         // try appending "-Regular", works for Wingdings on windows
         info = getFont(format, postScriptName + "-Regular");
         if (info != null)
         {
-            return info.getFont(false);
+            return info.getFont(vertical);
         }
         // no matches
         return null;
