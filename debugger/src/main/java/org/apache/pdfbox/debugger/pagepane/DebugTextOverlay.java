@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +119,8 @@ final class DebugTextOverlay
                 for (Map.Entry<String, Color> fontEntry : fontColorMap.entrySet()) {
                     graphics.setColor(fontEntry.getValue());
                     Point2D position = flip.transform(new Point2D.Float(5f, i * 12f + 5f), null);
-                    graphics.drawString(fontEntry.getKey(), ((int) position.getX()), ((int) position.getY()));
+                    String[] split = fontEntry.getKey().split("[+]");
+                    graphics.drawString(split[split.length-1], ((int) position.getX()), ((int) position.getY()));
                     i++;
                 }
                 graphics.setFont(oldFont);

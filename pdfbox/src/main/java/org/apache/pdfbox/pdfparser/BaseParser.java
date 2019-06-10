@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,7 +114,9 @@ public abstract class BaseParser
     private static final byte ASCII_ZERO = 48;
     private static final byte ASCII_NINE = 57;
     private static final byte ASCII_SPACE = 32;
-    
+    public static final Charset CP_936 = Charset.forName("CP936");
+    public static final Charset MS_932 = Charset.forName("MS932");
+
     /**
      * This is the stream that will be read from.
      */
@@ -763,12 +766,48 @@ public abstract class BaseParser
         {
             string = new String(buffer.toByteArray(), Charsets.UTF_8);
         }
+        else if(isValidMS932(bytes))
+        {
+            // some malformed PDFs don't use UTF-8 see PDFBOX-3347
+            string = new String(buffer.toByteArray(), MS_932);
+        }
+        else if(isValidCP936(bytes))
+        {
+            // some malformed PDFs don't use UTF-8 see PDFBOX-3347
+            string = new String(buffer.toByteArray(), CP_936);
+        }
         else
         {
             // some malformed PDFs don't use UTF-8 see PDFBOX-3347
             string = new String(buffer.toByteArray(), Charsets.WINDOWS_1252);
         }
         return COSName.getPDFName(string);
+    }
+
+    protected boolean isValidMS932(byte[] input) {
+        CharsetDecoder cs = MS_932.newDecoder();
+        try
+        {
+            cs.decode(ByteBuffer.wrap(input));
+            return true;
+        }
+        catch (CharacterCodingException e)
+        {
+            return false;
+        }
+    }
+
+    protected boolean isValidCP936(byte[] input) {
+        CharsetDecoder cs = CP_936.newDecoder();
+        try
+        {
+            cs.decode(ByteBuffer.wrap(input));
+            return true;
+        }
+        catch (CharacterCodingException e)
+        {
+            return false;
+        }
     }
 
     /**
