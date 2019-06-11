@@ -3,7 +3,7 @@
 %%IncludeResource: ProcSet (CIDInit)
 %%BeginResource: CMap (Identity-V)
 %%Title: (Identity-V Adobe Identity 0)
-%%Version: 10.003
+%%Version: 10.001
 %%Copyright: -----------------------------------------------------------
 %%Copyright: Copyright 1990-2009 Adobe Systems Incorporated.
 %%Copyright: All rights reserved.
@@ -55,7 +55,7 @@ begincmap
 end def
 
 /CMapName /Identity-V def
-/CMapVersion 10.003 def
+/CMapVersion 10.001 def
 /CMapType 1 def
 
 /XUID [1 10 25404 9991] def
