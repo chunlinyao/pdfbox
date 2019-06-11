@@ -129,7 +129,7 @@ public class PDCIDFontType0 extends PDCIDFont
 
             // find font or substitute
             CIDFontMapping mapping = FontMappers.instance()
-                                                .getCIDFont(parent.isVertical()? "@" + getBaseFont() : getBaseFont(), getFontDescriptor(),
+                                                .getCIDFont(getBaseFont(), getFontDescriptor(),
                                                             getCIDSystemInfo(), parent.isVertical());
             FontBoxFont font;
             if (mapping.isCIDFont())
