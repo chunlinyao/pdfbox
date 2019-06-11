@@ -265,7 +265,12 @@ public class PDType0Font extends PDFont implements PDVectorFont
         {
             // predefined CMap
             COSName encodingName = (COSName) encoding;
-            cMap = CMapManager.getPredefinedCMap(encodingName.getName());
+
+            String cMapName = encodingName.getName();
+            if (cMapName.startsWith("Uni") && cMapName.contains("UCS2")) {
+                cMapName = cMapName.replaceAll("UCS2", "UTF16");
+            }
+            cMap = CMapManager.getPredefinedCMap(cMapName);
             if (cMap != null)
             {
                 isCMapPredefined = true;
