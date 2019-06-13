@@ -260,7 +260,7 @@ public abstract class PDCIDFont implements COSObjectable, PDFontLike, PDVectorFo
 
     private boolean hasWidthForCID(int cid)
     {
-        return widths.get(cid) != null || dict.containsKey(COSName.DW);
+        return widths.get(cid) != null;
     }
 
     @Override

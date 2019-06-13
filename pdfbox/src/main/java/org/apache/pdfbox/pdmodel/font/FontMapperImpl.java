@@ -104,14 +104,8 @@ final class FontMapperImpl implements FontMapper
         substitutes.put("IPAゴシック", Arrays.asList("IPAGothic"));
         substitutes.put("IPAP明朝", Arrays.asList("IPAPMincho"));
         substitutes.put("IPAPゴシック", Arrays.asList("IPAPGothic"));
-        substitutes.put("@MS-Mincho", Arrays.asList("MSMincho"));
-        substitutes.put("@MS-Gothic", Arrays.asList("MSGothic"));
-        substitutes.put("@MS-PMincho", Arrays.asList("MSPMincho"));
-        substitutes.put("@MS-PGothic", Arrays.asList("MSPGothic"));
-        substitutes.put("@IPAMincho", Arrays.asList("IPAMincho"));
-        substitutes.put("@IPAGothic", Arrays.asList("IPAGothic"));
-        substitutes.put("@IPAPMincho", Arrays.asList("IPAPMincho"));
-        substitutes.put("@IPAPGothic", Arrays.asList("IPAPGothic"));
+        substitutes.put("MeiryoUI", Arrays.asList("MeiryoUI"));
+
 
         // Acrobat also uses alternative names for Standard 14 fonts, which we map to those above
         // these include names such as "Arial" and "TimesNewRoman"

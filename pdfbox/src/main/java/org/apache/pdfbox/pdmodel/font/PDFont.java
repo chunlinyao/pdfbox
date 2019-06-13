@@ -295,26 +295,6 @@ public abstract class PDFont implements COSObjectable, PDFontLike
         return width;
     }
 
-    @Override
-    public boolean hasExplicitWidth(int code) throws IOException
-    {
-        if (dict.containsKey(COSName.MISSING_WIDTH))
-        {
-            return true;
-        }
-        
-        if (dict.containsKey(COSName.WIDTHS))
-        {
-            int firstChar = dict.getInt(COSName.FIRST_CHAR, -1);
-            if (code >= firstChar && code - firstChar < getWidths().size())
-            {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
     /**
      * Returns the glyph width from the AFM if this is a Standard 14 font.
      * 
