@@ -44,8 +44,9 @@ public abstract class FontInfo
     /**
      * Returns a new FontBox font instance for the font. Implementors of this method must not
      * cache the return value of this method unless doing so via the current {@link FontCache}.
+     * @param vertical
      */
-    public abstract FontBoxFont getFont();
+    public abstract FontBoxFont getFont(boolean vertical);
 
     /**
      * Returns the sFamilyClass field of the "OS/2" table, or -1.

@@ -126,15 +126,15 @@ public class FontFileFinder
                     }
                     else
                     {
-                        if (LOG.isDebugEnabled())
+                        if (LOG.isTraceEnabled())
                         {
-                            LOG.debug("checkFontfile check " + file);
+                            LOG.trace("checkFontfile check " + file);
                         }
                         if (checkFontfile(file))
                         {
-                            if (LOG.isDebugEnabled())
+                            if (LOG.isTraceEnabled())
                             {
-                                LOG.debug("checkFontfile found " + file);
+                                LOG.trace("checkFontfile found " + file);
                             }
                             results.add(file.toURI());
                         }

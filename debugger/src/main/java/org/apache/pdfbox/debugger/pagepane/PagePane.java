@@ -19,21 +19,12 @@ package org.apache.pdfbox.debugger.pagepane;
 import java.awt.Graphics2D;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.debugger.PDFDebugger;
-import org.apache.pdfbox.debugger.ui.ImageUtil;
-import org.apache.pdfbox.debugger.ui.RotationMenu;
-import org.apache.pdfbox.debugger.ui.ViewMenu;
-import org.apache.pdfbox.debugger.ui.ZoomMenu;
+import org.apache.pdfbox.debugger.ui.*;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import java.awt.Component;
@@ -52,7 +43,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import org.apache.pdfbox.debugger.ui.HighResolutionImageIcon;
+
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.interactive.action.PDAction;
 import org.apache.pdfbox.pdmodel.interactive.action.PDActionGoTo;
@@ -238,7 +229,8 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
                 ViewMenu.isShowTextStripperBeads(),
                 ViewMenu.isShowFontBBox(),
                 ViewMenu.isShowGlyphBounds(),
-                ViewMenu.isAllowSubsampling()
+                ViewMenu.isAllowSubsampling(),
+                ViewMenu.isShowFontInfo()
         ).execute();
         zoomMenu.setPageZoomScale(ZoomMenu.getZoomScale());
     }
@@ -397,10 +389,11 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
         private final boolean showFontBBox;
         private final boolean showGlyphBounds;
         private final boolean allowSubsampling;
+        private final boolean showFontInfo;
 
         private RenderWorker(float scale, int rotation, boolean showTextStripper,
                              boolean showTextStripperBeads, boolean showFontBBox,
-                             boolean showGlyphBounds, boolean allowSubsampling)
+                             boolean showGlyphBounds, boolean allowSubsampling, boolean showFontInfo)
         {
             this.scale = scale;
             this.rotation = rotation;
@@ -409,6 +402,7 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
             this.showFontBBox = showFontBBox;
             this.showGlyphBounds = showGlyphBounds;
             this.allowSubsampling = allowSubsampling;
+            this.showFontInfo = showFontInfo;
         }
 
         @Override
@@ -433,7 +427,7 @@ public class PagePane implements ActionListener, AncestorListener, MouseMotionLi
             // debug overlays
             DebugTextOverlay debugText = new DebugTextOverlay(document, pageIndex, scale, 
                                                               showTextStripper, showTextStripperBeads,
-                                                              showFontBBox);
+                                                              showFontBBox, showFontInfo);
             Graphics2D g = image.createGraphics();
             debugText.renderTo(g);
             g.dispose();

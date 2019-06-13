@@ -140,7 +140,9 @@ public class PDCIDFontType2 extends PDCIDFont
             }
             ttf = ttfFont;
         }
+
         cmap = ttf.getUnicodeCmapLookup(false);
+
         cid2gid = readCIDToGIDMap();
     }
 
@@ -150,7 +152,7 @@ public class PDCIDFontType2 extends PDCIDFont
 
         CIDFontMapping mapping = FontMappers.instance()
                 .getCIDFont(getBaseFont(), getFontDescriptor(),
-                        getCIDSystemInfo());
+                        getCIDSystemInfo(), parent.isVertical());
         if (mapping.isCIDFont())
         {
             ttfFont = mapping.getFont();

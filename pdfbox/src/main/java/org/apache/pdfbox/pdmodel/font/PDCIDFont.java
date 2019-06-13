@@ -304,7 +304,7 @@ public abstract class PDCIDFont implements COSObjectable, PDFontLike, PDVectorFo
         // font widths with the widths given in the font dictionary
         return getWidthForCID(codeToCID(code));
     }
-
+    
     @Override
     public abstract float getWidthFromFont(int code) throws IOException;
 

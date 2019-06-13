@@ -33,7 +33,8 @@ public class ViewMenu extends MenuBase
     private static final String SHOW_TEXT_STRIPPER_BEADS = "Show TextStripper Beads";
     private static final String SHOW_FONT_BBOX = "Show Approximate Text Bounds";
     private static final String SHOW_GLYPH_BOUNDS = "Show Glyph Bounds";
-    private static final String ALLOW_SUBSAMPLING = "Allow subsampling";            
+    private static final String ALLOW_SUBSAMPLING = "Allow subsampling";
+    private static final String SHOW_FONT_INFO = "Show Font Info";
 
     private JMenuItem viewModeItem;
     private JCheckBoxMenuItem showTextStripper;
@@ -41,6 +42,7 @@ public class ViewMenu extends MenuBase
     private JCheckBoxMenuItem showFontBBox;
     private JCheckBoxMenuItem showGlyphBounds;
     private JCheckBoxMenuItem allowSubsampling;
+    private JCheckBoxMenuItem showFontInfo;
     
     private final PDFDebugger pdfDebugger;
 
@@ -81,7 +83,8 @@ public class ViewMenu extends MenuBase
                 SHOW_TEXT_STRIPPER_BEADS.equals(actionCommand) ||
                 SHOW_FONT_BBOX.equals(actionCommand) ||
                 SHOW_GLYPH_BOUNDS.equals(actionCommand) ||
-                ALLOW_SUBSAMPLING.equals(actionCommand);         
+                ALLOW_SUBSAMPLING.equals(actionCommand) ||
+               SHOW_FONT_INFO.equals(actionCommand);
     }
     
     /**
@@ -132,6 +135,17 @@ public class ViewMenu extends MenuBase
     public static boolean isAllowSubsampling()
     {
         return instance.allowSubsampling.isSelected();
+    }
+
+
+    /**
+     * State if show font info
+     *
+     * @return the selection state
+     */
+    public static boolean isShowFontInfo()
+    {
+        return instance.showFontInfo.isSelected();
     }
     
     private JMenu createViewMenu()
@@ -201,6 +215,10 @@ public class ViewMenu extends MenuBase
         allowSubsampling = new JCheckBoxMenuItem(ALLOW_SUBSAMPLING);
         allowSubsampling.setEnabled(false);
         viewMenu.add(allowSubsampling);
+
+        showFontInfo = new JCheckBoxMenuItem(SHOW_FONT_INFO);
+        showFontInfo.setEnabled(false);
+        viewMenu.add(showFontInfo);
 
         return viewMenu;
     }

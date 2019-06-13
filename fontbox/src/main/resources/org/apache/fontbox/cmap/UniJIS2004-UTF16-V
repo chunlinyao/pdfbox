@@ -1,11 +1,11 @@
 %!PS-Adobe-3.0 Resource-CMap
 %%DocumentNeededResources: ProcSet (CIDInit)
-%%DocumentNeededResources: CMap (UniJIS-UTF16-H)
+%%DocumentNeededResources: CMap (UniJIS2004-UTF16-H)
 %%IncludeResource: ProcSet (CIDInit)
-%%IncludeResource: CMap (UniJIS-UTF16-H)
-%%BeginResource: CMap (UniJIS-UTF16-V)
-%%Title: (UniJIS-UTF16-V Adobe Japan1 7)
-%%Version: 1.007
+%%IncludeResource: CMap (UniJIS2004-UTF16-H)
+%%BeginResource: CMap (UniJIS2004-UTF16-V)
+%%Title: (UniJIS2004-UTF16-V Adobe Japan1 7)
+%%Version: 1.005
 %%Copyright: -----------------------------------------------------------
 %%Copyright: Copyright 1990-2018 Adobe Systems Incorporated.
 %%Copyright: All rights reserved.
@@ -50,7 +50,7 @@
 
 begincmap
 
-/UniJIS-UTF16-H usecmap
+/UniJIS2004-UTF16-H usecmap
 
 /CIDSystemInfo 3 dict dup begin
   /Registry (Adobe) def
@@ -58,11 +58,11 @@ begincmap
   /Supplement 7 def
 end def
 
-/CMapName /UniJIS-UTF16-V def
-/CMapVersion 1.007 def
+/CMapName /UniJIS2004-UTF16-V def
+/CMapVersion 1.005 def
 /CMapType 1 def
 
-/XUID [1 10 25612] def
+/XUID [1 10 25630] def
 
 /WMode 1 def
 

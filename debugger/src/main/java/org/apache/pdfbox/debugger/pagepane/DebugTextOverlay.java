@@ -16,18 +16,21 @@
 
 package org.apache.pdfbox.debugger.pagepane;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.fontbox.util.BoundingBox;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -48,19 +51,25 @@ import org.apache.pdfbox.util.Matrix;
  */
 final class DebugTextOverlay
 {
-    private final PDDocument document;
-    private final int pageIndex;
-    private final float scale;
-    private final boolean showTextStripper;
-    private final boolean showTextStripperBeads;
-    private final boolean showFontBBox;
-        
+    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
+    private final LinkedHashMap<String, Color> fontColorMap;
+    private PDDocument document;
+    private int pageIndex;
+    private float scale;
+    private boolean showTextStripper;
+    private boolean showTextStripperBeads;
+    private boolean showFontBBox;
+    private boolean showFontInfo;
+    private Color[] colors = new Color[]{Color.red, Color.blue, Color.green, Color.pink, Color.cyan, Color.magenta, Color.orange, Color.yellow};
+    private String textContent;
+
     private class DebugTextStripper extends PDFTextStripper
     {
-        private final Graphics2D graphics;
+        private Graphics2D graphics;
         private AffineTransform flip;
-        
-        DebugTextStripper(Graphics2D graphics) throws IOException
+        private Font fontInfoFont = new Font(Font.DIALOG, Font.PLAIN, 3);
+
+        public DebugTextStripper(Graphics2D graphics) throws IOException
         {
             this.graphics = graphics;
         }
@@ -82,9 +91,11 @@ final class DebugTextOverlay
             setStartPage(pageIndex + 1);
             setEndPage(pageIndex + 1);
 
-            Writer dummy = new OutputStreamWriter(new ByteArrayOutputStream());
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Writer dummy = new OutputStreamWriter(out);
             writeText(document, dummy);
-
+            dummy.close();
+            DebugTextOverlay.this.textContent = out.toString();
             if (DebugTextOverlay.this.showTextStripperBeads)
             {
                 // beads in green
@@ -101,6 +112,23 @@ final class DebugTextOverlay
                     graphics.setColor(Color.green);
                     graphics.draw(s);
                 }
+            }
+
+            if (DebugTextOverlay.this.showFontInfo) {
+                AffineTransform at = (AffineTransform) flip.clone();
+                Font oldFont = graphics.getFont();
+                Color oldColor = graphics.getColor();
+                graphics.setFont(new Font(Font.DIALOG, Font.PLAIN, 10));
+                int i = 0;
+                for (Map.Entry<String, Color> fontEntry : fontColorMap.entrySet()) {
+                    graphics.setColor(fontEntry.getValue());
+                    Point2D position = flip.transform(new Point2D.Float(5f, i * 12f + 5f), null);
+                    String[] split = fontEntry.getKey().split("[+]");
+                    graphics.drawString(split[split.length-1], ((int) position.getX()), ((int) position.getY()));
+                    i++;
+                }
+                graphics.setFont(oldFont);
+                graphics.setColor(oldColor);
             }
         }
 
@@ -139,6 +167,7 @@ final class DebugTextOverlay
         @Override
         protected void writeString(String string, List<TextPosition> textPositions) throws IOException
         {
+            super.writeString(string, textPositions);
             for (TextPosition text : textPositions)
             {
                 if (DebugTextOverlay.this.showTextStripper)
@@ -186,14 +215,35 @@ final class DebugTextOverlay
 
                     graphics.setColor(Color.blue);
                     graphics.draw(at.createTransformedShape(rect));
+
+                }
+
+                if (DebugTextOverlay.this.showFontInfo) {
+                    AffineTransform at = (AffineTransform) flip.clone();
+                    at.concatenate(text.getTextMatrix().createAffineTransform());
+                    Font oldFont = graphics.getFont();
+                    Color oldColor = graphics.getColor();
+                    graphics.setFont(fontInfoFont);
+                    graphics.setColor(getFontColor(text.getFont().getName()));
+                    Point2D position = at.transform(new Point2D.Float(0f, -0.3f), null);
+                    graphics.drawString(DECIMAL_FORMAT.format(text.getTextMatrix().getScalingFactorX()), ((int) position.getX()), ((int) position.getY()));
+                    graphics.setFont(oldFont);
+                    graphics.setColor(oldColor);
                 }
             }
         }
+
+        private Color getFontColor(String fontName) {
+            if (fontColorMap.containsKey(fontName) == false) {
+                fontColorMap.put(fontName, colors[fontColorMap.size() % colors.length]);
+            }
+            return fontColorMap.get(fontName);
+        }
     }
 
-    DebugTextOverlay(PDDocument document, int pageIndex, float scale,
+    public DebugTextOverlay(PDDocument document, int pageIndex, float scale,
                             boolean showTextStripper, boolean showTextStripperBeads,
-                            boolean showFontBBox)
+                            boolean showFontBBox, boolean showFontInfo)
     {
         this.document = document;
         this.pageIndex = pageIndex;
@@ -201,11 +251,17 @@ final class DebugTextOverlay
         this.showTextStripper = showTextStripper;
         this.showTextStripperBeads = showTextStripperBeads;
         this.showFontBBox = showFontBBox;
+        this.showFontInfo = showFontInfo;
+        this.fontColorMap = new LinkedHashMap<>();
     }
     
     public void renderTo(Graphics2D graphics) throws IOException
     {
         DebugTextStripper stripper = new DebugTextStripper(graphics);
         stripper.stripPage(this.document, this.document.getPage(pageIndex), this.pageIndex, this.scale);
+    }
+
+    public String getTextContent() {
+        return textContent;
     }
 }

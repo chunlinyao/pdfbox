@@ -31,6 +31,7 @@ import org.apache.fontbox.cff.CFFFont;
 import org.apache.fontbox.cff.CFFParser;
 import org.apache.fontbox.cff.CFFType1Font;
 import org.apache.fontbox.cff.Type2CharString;
+import org.apache.fontbox.ttf.TrueTypeFont;
 import org.apache.fontbox.util.BoundingBox;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.io.IOUtils;
@@ -125,10 +126,11 @@ public class PDCIDFontType0 extends PDCIDFont
         }
         else
         {
+
             // find font or substitute
             CIDFontMapping mapping = FontMappers.instance()
                                                 .getCIDFont(getBaseFont(), getFontDescriptor(),
-                                                            getCIDSystemInfo());
+                                                            getCIDSystemInfo(), parent.isVertical());
             FontBoxFont font;
             if (mapping.isCIDFont())
             {
@@ -152,6 +154,10 @@ public class PDCIDFontType0 extends PDCIDFont
             {
                 cidFont = null;
                 t1Font = mapping.getTrueTypeFont();
+                if (parent.isVertical() ){
+                    ((TrueTypeFont) t1Font).enableVerticalSubstitutions();
+                }
+
                 font = t1Font;
             }
 

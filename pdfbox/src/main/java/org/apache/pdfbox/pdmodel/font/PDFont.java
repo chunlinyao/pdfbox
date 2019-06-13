@@ -203,6 +203,9 @@ public abstract class PDFont implements COSObjectable, PDFontLike
         {
             // predefined CMap
             String name = ((COSName)base).getName();
+            if (name.startsWith("Uni") && name.contains("UCS2") && !name.contains("-HW-")) {
+                name = name.replaceAll("UCS2", "UTF16");
+            }
             return CMapManager.getPredefinedCMap(name);
         }
         else if (base instanceof COSStream)

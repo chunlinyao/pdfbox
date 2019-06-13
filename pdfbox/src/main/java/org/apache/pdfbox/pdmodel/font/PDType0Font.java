@@ -86,8 +86,9 @@ public class PDType0Font extends PDFont implements PDVectorFont
         {
             throw new IOException("Missing descendant font dictionary");
         }
-        descendantFont = PDFontFactory.createDescendantFont((COSDictionary) descendantFontDictBase, this);
         readEncoding();
+        descendantFont = PDFontFactory.createDescendantFont((COSDictionary) descendantFontDictBase, this);
+        checkIsCjk();
         fetchCMapUCS2();
     }
 
@@ -110,13 +111,13 @@ public class PDType0Font extends PDFont implements PDVectorFont
         {
             ttf.enableVerticalSubstitutions();
         }
-
+        readEncoding();
         gsubData = ttf.getGsubData();
         cmapLookup = ttf.getUnicodeCmapLookup();
 
         embedder = new PDCIDFontType2Embedder(document, dict, ttf, embedSubset, this, vertical);
         descendantFont = embedder.getCIDFont();
-        readEncoding();
+        checkIsCjk();
         fetchCMapUCS2();
         if (closeTTF)
         {
@@ -295,7 +296,12 @@ public class PDType0Font extends PDFont implements PDVectorFont
         {
             // predefined CMap
             COSName encodingName = (COSName) encoding;
-            cMap = CMapManager.getPredefinedCMap(encodingName.getName());
+
+            String cMapName = encodingName.getName();
+            if (cMapName.startsWith("Uni") && cMapName.contains("UCS2") && !cMapName.contains("-HW-")) {
+                cMapName = cMapName.replaceAll("UCS2", "UTF16");
+            }
+            cMap = CMapManager.getPredefinedCMap(cMapName);
             if (cMap != null)
             {
                 isCMapPredefined = true;
@@ -317,7 +323,10 @@ public class PDType0Font extends PDFont implements PDVectorFont
                 LOG.warn("Invalid Encoding CMap in font " + getName());
             }
         }
-        
+
+    }
+
+    private void checkIsCjk() {
         // check if the descendant font is CJK
         PDCIDSystemInfo ros = descendantFont.getCIDSystemInfo();
         if (ros != null)

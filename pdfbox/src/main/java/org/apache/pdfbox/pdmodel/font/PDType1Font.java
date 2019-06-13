@@ -144,7 +144,7 @@ public class PDType1Font extends PDSimpleFont implements PDVectorFont
         type1font = null;
         FontMapping<FontBoxFont> mapping = FontMappers.instance()
                                                       .getFontBoxFont(getBaseFont(),
-                                                                      getFontDescriptor());
+                                                                      getFontDescriptor(), false);
         genericFont = mapping.getFont();
         
         if (mapping.isFallback())
@@ -288,7 +288,7 @@ public class PDType1Font extends PDSimpleFont implements PDVectorFont
         else
         {
             FontMapping<FontBoxFont> mapping = FontMappers.instance()
-                                                          .getFontBoxFont(getBaseFont(), fd);
+                                                          .getFontBoxFont(getBaseFont(), fd, false);
             genericFont = mapping.getFont();
             
             if (mapping.isFallback())

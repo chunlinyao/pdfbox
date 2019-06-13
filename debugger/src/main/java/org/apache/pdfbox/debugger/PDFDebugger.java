@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
@@ -50,21 +51,7 @@ import javax.imageio.spi.IIORegistry;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Sides;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
-import javax.swing.TransferHandler;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -169,10 +156,12 @@ public class PDFDebugger extends JFrame
     private JMenuItem findMenuItem;
     private JMenuItem findNextMenuItem;
     private JMenuItem findPreviousMenuItem;
-    
+
+
     // configuration
     public static Properties configuration = new Properties();
-    
+
+    public static StringBuilder textContent = new StringBuilder();
     /**
      * Constructor.
      */
@@ -192,6 +181,10 @@ public class PDFDebugger extends JFrame
         this.isPageMode = isPageMode;
         loadConfiguration();
         initComponents();
+
+        // use our custom logger
+        LogDialog.init(this, statusBar.getLogLabel());
+        System.setProperty("org.apache.commons.logging.Log", "org.apache.pdfbox.debugger.ui.DebugLog");
     }
 
     /**
@@ -202,6 +195,18 @@ public class PDFDebugger extends JFrame
      */
     public static void main(String[] args) throws Exception
     {
+        try
+        {
+            // force KCMS (faster than LCMS) if available
+            Class.forName("sun.java2d.cmm.kcms.KcmsServiceProvider");
+            System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
+        }
+        catch (ClassNotFoundException e)
+        {
+            System.out.println("Oh-oh, sun.java2d.cmm.kcms.KcmsServiceProvider no longer exists, "
+                             + "so image rendering will be much slower :-(");
+        }
+
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         if (System.getProperty("apple.laf.useScreenMenuBar") == null)
         {
@@ -217,7 +222,7 @@ public class PDFDebugger extends JFrame
                 new ErrorDialog(throwable).setVisible(true);
             }
         });
-
+        
         // open file, if any
         String filename = null;
         String password = "";
@@ -453,6 +458,7 @@ public class PDFDebugger extends JFrame
         // Mac OS X file open/quit handler
         if (IS_MAC_OS)
         {
+            //TODO this needs to be rewritten for JDK9, see PDFBOX-4013
             try
             {
                 Method osxOpenFiles = getClass().getDeclaredMethod("osxOpenFiles", String.class);
@@ -564,8 +570,11 @@ public class PDFDebugger extends JFrame
             }
         });
 
-        fileMenu.addSeparator();
-        fileMenu.add(printMenuItem);
+        if (!IS_MAC_OS)
+        {
+            fileMenu.addSeparator();
+            fileMenu.add(printMenuItem);
+        }
 
         JMenuItem exitMenuItem = new JMenuItem("Exit");
         exitMenuItem.setAccelerator(KeyStroke.getKeyStroke("alt F4"));
@@ -599,6 +608,18 @@ public class PDFDebugger extends JFrame
         JMenuItem copyMenuItem = new JMenuItem("Copy");
         copyMenuItem.setEnabled(false);
         editMenu.add(copyMenuItem);
+
+        JMenuItem copyTextMenuItem = new JMenuItem("Copy Text");
+        copyTextMenuItem.setEnabled(true);
+        editMenu.add(copyTextMenuItem);
+        copyTextMenuItem.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent evt)
+            {
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(PDFDebugger.textContent.toString()), null);
+            }
+        });
 
         JMenuItem pasteMenuItem = new JMenuItem("Paste");
         pasteMenuItem.setEnabled(false);
@@ -1492,4 +1513,5 @@ public class PDFDebugger extends JFrame
         }
         return null;
     }
+
 }
